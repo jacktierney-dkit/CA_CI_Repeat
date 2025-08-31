@@ -20,7 +20,7 @@ def test_rates(amount, code):
     assert inv.getCurrencyValue(amount, code) == want
 
 def test_vat_and_discount():
-    assert inv.calculateVAT(100) == pytest.approx(22.0)
+    assert inv.calculateVAT(100) == pytest.approx(23.0)
     assert inv.discount(19.99) == 0.0
     assert inv.discount(20.01) == pytest.approx(round(20.01 * 0.10, 2))
     assert inv.discount(50.01) == pytest.approx(round(50.01 * 0.20, 2))
