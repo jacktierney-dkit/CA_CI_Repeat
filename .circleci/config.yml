@@ -7,57 +7,27 @@ jobs:
     docker:
       - image: cimg/python:3.12-browsers
     environment:
-      FLASK_APP: simpler_server
+      FLASK_APP: simpler_server.py
       FLASK_ENV: testing
-      TEST_BASE_URL: http://127.0.0.1:5000
     steps:
       - checkout
-
-      - run:
-          name: Show runtime versions
-          command: |
-            python --version
-            pip --version
-            google-chrome --version || true
-            chromedriver --version || true
-
       - python/install-packages:
           pkg-manager: pip
           app-dir: .
           pip-dependency-file: requirements.txt
-
       - run:
-          name: Start Flask (background) + wait until it's up
+          name: Start Flask
           command: |
-            python -m flask --app "$FLASK_APP" run --port 5000 > flask.log 2>&1 &
-            echo $! > flask.pid
-
-            for i in $(seq 1 60); do
-              curl -sSf "$TEST_BASE_URL/" >/dev/null 2>&1 && echo "Flask is up" && break
-              sleep 1
-            done
-            head -n 40 flask.log || true
-
+            python -m flask --app simpler_server run --port 5000 > flask.log 2>&1 &
+            sleep 5
       - run:
           name: Run pytest
           command: pytest -q --maxfail=1 --disable-warnings
-
       - run:
-          name: Show Flask logs on failure
+          name: Show Flask logs if tests fail
           when: on_fail
-          command: |
-            echo "==== flask.log ===="
-            cat flask.log || true
+          command: cat flask.log || true
 
-      - run:
-          name: Stop Flask
-          command: |
-            if [ -f flask.pid ]; then kill -INT "$(cat flask.pid)" || true; fi
-
-workflows:
-  run-tests:
-    jobs:
-      - test
 workflows:
   run-tests:
     jobs:
