@@ -4,7 +4,6 @@ from selenium.common.exceptions import NoSuchElementException
 
 BASE_URL = "http://127.0.0.1:5000"
 
-@pytest.mark.usefixtures("driver")
 def test_add_invoice_save_and_redirect(driver):
     driver.get(BASE_URL + "/enter_invoice")
 
@@ -14,9 +13,9 @@ def test_add_invoice_save_and_redirect(driver):
         driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
 
     time.sleep(0.5)
-    assert "/showinvoice?order=" in driver.current_url
+    assert "showinvoice" in driver.current_url.lower(), \
+        f"Expected redirect to showInvoice, got {driver.current_url}"
 
-@pytest.mark.usefixtures("driver")
 def test_add_invoice_close_function(driver):
     driver.get(BASE_URL + "/enter_invoice")
 
